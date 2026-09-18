@@ -1,8 +1,11 @@
 package se.edu.streamdemo;
 
+import static java.util.stream.Collectors.toList;
+
 import se.edu.streamdemo.data.Datamanager;
 import se.edu.streamdemo.task.Deadline;
 import se.edu.streamdemo.task.Task;
+import se.edu.streamdemo.task.TaskComparator;
 
 import java.util.ArrayList;
 
@@ -20,10 +23,12 @@ public class Main {
 
         System.out.println("Printing deadlines ...");
         printDeadlines(tasksData);
-        printDeadlinesUsingStreams(tasksData);
+        printSortedDeadlinesUsingStreams(tasksData);
 
         System.out.println("Total number of deadlines: " + countDeadlines(tasksData));
         System.out.println("Total number of deadlines (using streams): " + countDeadlinesUsingStreams(tasksData));
+
+        ArrayList<Task> filteredList = filterTaskByString(tasksData, "10");
 
     }
 
@@ -66,11 +71,17 @@ public class Main {
         }
     }
 
-    public static void printDeadlinesUsingStreams(ArrayList<Task> tasksData) {
-        System.out.println("Printing all deadline using parallel streams ...");
-        tasksData.parallelStream() //does every instance at once
+    public static void printSortedDeadlinesUsingStreams(ArrayList<Task> tasksData) {
+        System.out.println("Printing sorted deadlines using streams ...");
+        tasksData.stream()
                 .filter(t -> t instanceof Deadline)
+                .sorted((t1, t2) -> t1.getDescription().compareToIgnoreCase(t2.getDescription()))
                 .forEach(System.out::println);
     }
 
+    public static ArrayList<Task> filterTaskByString(ArrayList<Task> tasks, String taskString) {
+        return (ArrayList<Task>) tasks.stream()
+                .filter(t -> t.getDescription().contains(taskString))
+                .collect(toList());
+    }
 }
